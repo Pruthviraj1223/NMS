@@ -23,23 +23,27 @@ public class ApiServer extends AbstractVerticle {
         router.route().handler(BodyHandler.create());
 
         router.post(Constants.DISCOVERY). handler(handler->{
+            try {
 
-            JsonObject userData = handler.getBodyAsJson();
+                JsonObject userData = handler.getBodyAsJson();
 
-            vertx.eventBus().request(Constants.DISCOVERYADDRESS,userData,response->{
+                vertx.eventBus().request(Constants.DISCOVERY_ADDRESS, userData, response -> {
 
-                if(response.succeeded()) {
+                    if (response.succeeded()) {
 
-                    handler.response().end(response.result().body().toString());
+                        handler.response().setStatusCode(200).putHeader("content-type", "application/json")
+                                .end(response.result().body().toString());
 
-                }else{
+                    } else {
 
-                    handler.response().end("Failed");
+                        handler.response().end("Failed");
 
-                }
+                    }
 
-            });
-
+                });
+            }catch (Exception e){
+                handler.response().end(new JsonObject().put("status","Invalid Fromat").encodePrettily());
+            }
         });
 
         httpServer.requestHandler(router).listen(8080).onComplete(handler->{

@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Map;
 
 public class Utils {
@@ -27,6 +28,9 @@ public class Utils {
         }
         if(!jsonObject.containsKey("password")){
             listOfErrors.add("password is not available");
+        }
+        if(!jsonObject.containsKey("port")){
+            listOfErrors.add("port is not available");
         }
 
         if(listOfErrors.isEmpty()) {
@@ -64,7 +68,7 @@ public class Utils {
 
         processBuilder.redirectErrorStream(true); // It must be before the staring of process
 
-        Process process;
+        Process process = null;
 
         try {
 
@@ -72,9 +76,10 @@ public class Utils {
 
         } catch (IOException e) {
 
-            throw new RuntimeException(e);
+            error.put("error",e.getMessage());
         }
 
+        assert process != null;
         InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
 
         var bufferedReader = new BufferedReader(inputStreamReader);
@@ -90,18 +95,70 @@ public class Utils {
         boolean ans =  loss.equalsIgnoreCase("0");
 
         if(ans){
-            error.put("status","success");
+            error.put("ping","success");
         }else{
-            error.put("status","fail");
+            error.put("ping","fail");
         }
 
         return error;
 
     }
 
-    public static JsonObject plugin(JsonObject jsonObject){
+    public static JsonObject plugin(JsonObject user){
 
-        return new JsonObject();
+        JsonObject result = new JsonObject();
+
+        user.put("category","discovery");
+
+        String encoded = Base64.getEncoder().encodeToString(user.toString().getBytes());
+
+        user.remove("category");
+
+        ProcessBuilder processBuilder = new ProcessBuilder().command("/home/pruthviraj/InternshipProject/plugin.exe",encoded);
+
+        String output = "";
+
+        try {
+
+            processBuilder.redirectErrorStream(true);
+
+            Process process = processBuilder.start();
+
+            InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream()); //read the output
+
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+            output = bufferedReader.readLine();
+
+            process.waitFor();
+
+            bufferedReader.close();
+
+            process.destroy();
+
+        } catch (IOException | InterruptedException e) {
+
+            e.printStackTrace();
+
+        }
+
+        if (output != null) {
+
+            if(output.equalsIgnoreCase("true")){
+
+                result.put("status","success");
+            }else{
+                result.put("status","fail");
+                result.put("error",output);
+            }
+            return  result;
+
+        }else{
+
+            result.put("error","Output is null");
+            return result;
+        }
+
     }
 
 }
