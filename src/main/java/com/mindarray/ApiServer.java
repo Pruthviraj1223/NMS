@@ -23,6 +23,7 @@ public class ApiServer extends AbstractVerticle {
         router.route().handler(BodyHandler.create());
 
         router.post(Constants.DISCOVERY). handler(handler->{
+
             try {
 
                 JsonObject userData = handler.getBodyAsJson();
@@ -41,8 +42,11 @@ public class ApiServer extends AbstractVerticle {
                     }
 
                 });
+
             }catch (Exception e){
-                handler.response().end(new JsonObject().put("status","Invalid Fromat").encodePrettily());
+
+                handler.response().end(new JsonObject().put("status","Invalid Format").encodePrettily());
+
             }
         });
 

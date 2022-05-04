@@ -1,10 +1,13 @@
 package com.mindarray;
 
 import io.vertx.core.AbstractVerticle;
+
 import io.vertx.core.Promise;
-import io.vertx.core.json.Json;
+
 import io.vertx.core.json.JsonObject;
+
 import org.slf4j.Logger;
+
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -52,16 +55,18 @@ public class DiscoveryEngine extends AbstractVerticle {
                                         }
 
                                     }else{
-                                        res.complete(ping);
+
+                                        res.fail(ping.toString());
                                     }
 
                                 } catch (IOException e) {
 
                                     throw new RuntimeException(e);
+
                                 }
+
                             },false,resHandler ->
                             {
-
 
                                 if(resHandler.succeeded()) {
 

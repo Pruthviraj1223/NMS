@@ -17,21 +17,42 @@ public class Utils {
 
         ArrayList<String> listOfErrors = new ArrayList<>();
 
-        if(!jsonObject.containsKey("metricType")){
+        if(!jsonObject.containsKey(Constants.METRIC_TYPE)){
             listOfErrors.add("metricType field is not available");
         }
-        if(!jsonObject.containsKey("ip")){
+        if(jsonObject.containsKey(Constants.METRIC_TYPE)){
+
+            if(jsonObject.getString(Constants.METRIC_TYPE).equalsIgnoreCase("linux") || jsonObject.getString(Constants.METRIC_TYPE).equalsIgnoreCase("windows"))
+            {
+                if(!jsonObject.containsKey(Constants.NAME))
+                {
+                    listOfErrors.add("name is not available");
+                }
+                if(!jsonObject.containsKey(Constants.PASSWORD)){
+                    listOfErrors.add("password is not available");
+                }
+            }
+            else if(jsonObject.getString(Constants.METRIC_TYPE).equalsIgnoreCase("networking") ){
+
+                if(!jsonObject.containsKey(Constants.COMMUNITY))
+                {
+                    listOfErrors.add("community is not available");
+                }
+                if(!jsonObject.containsKey(Constants.VERSION)){
+                    listOfErrors.add("version is not available");
+                }
+            }
+
+        }
+
+        if(!jsonObject.containsKey(Constants.IP_ADDRESS)){
             listOfErrors.add("ip is not available");
         }
-        if(!jsonObject.containsKey("name")){
-            listOfErrors.add("name is not available");
-        }
-        if(!jsonObject.containsKey("password")){
-            listOfErrors.add("password is not available");
-        }
-        if(!jsonObject.containsKey("port")){
+
+        if(!jsonObject.containsKey(Constants.PORT)){
             listOfErrors.add("port is not available");
         }
+
 
         if(listOfErrors.isEmpty()) {
             result.put("status", "success");
@@ -43,12 +64,7 @@ public class Utils {
 
     }
 
-    public static JsonObject checkPort(){
-
-        return new JsonObject();
-    }
-
-    public static JsonObject ping(JsonObject jsonObject) throws IOException {
+    public static JsonObject ping(JsonObject entries) throws IOException {
 
         JsonObject error = new JsonObject();
 
@@ -62,7 +78,7 @@ public class Utils {
 
         commands.add("3");
 
-        commands.add(jsonObject.getString("ip"));
+        commands.add(entries.getString(Constants.IP_ADDRESS));
 
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
 
@@ -88,6 +104,13 @@ public class Utils {
 
         output = bufferedReader.readLine();
 
+        if(output==null){
+
+            error.put("error","No data from ping");
+
+        }
+
+        assert output != null;
         String []arr = output.split(":")[1].split("=")[1].split(",")[0].split("/");
 
         String loss = arr[2].substring(0,arr[2].length()-1);
@@ -95,9 +118,13 @@ public class Utils {
         boolean ans =  loss.equalsIgnoreCase("0");
 
         if(ans){
+
             error.put("ping","success");
+
         }else{
+
             error.put("ping","fail");
+
         }
 
         return error;
@@ -114,7 +141,7 @@ public class Utils {
 
         user.remove("category");
 
-        ProcessBuilder processBuilder = new ProcessBuilder().command("/home/pruthviraj/InternshipProject/plugin.exe",encoded);
+        ProcessBuilder processBuilder = new ProcessBuilder().command("/home/pruthviraj/NMS/plugin.exe",encoded);
 
         String output = "";
 
@@ -144,11 +171,14 @@ public class Utils {
 
         if (output != null) {
 
-            if(output.equalsIgnoreCase("true")){
+            if(output.equalsIgnoreCase("success")){
 
                 result.put("status","success");
+
             }else{
+
                 result.put("status","fail");
+
                 result.put("error",output);
             }
             return  result;
@@ -156,7 +186,9 @@ public class Utils {
         }else{
 
             result.put("error","Output is null");
+
             return result;
+
         }
 
     }

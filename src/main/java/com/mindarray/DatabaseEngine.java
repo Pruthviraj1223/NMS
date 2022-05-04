@@ -22,13 +22,13 @@ public class DatabaseEngine extends AbstractVerticle {
 
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/NMS", "root", "password");
 
-            String query = "select * from Discovery where ip='" + jsonObject.getString("ip") + "'";
+            String query = "select * from Discovery where ip='" + jsonObject.getString(Constants.IP_ADDRESS) + "'";
 
             ResultSet resultSet = con.createStatement().executeQuery(query);
 
             ans = resultSet.next();
 
-        } catch (SQLException | ClassNotFoundException e){
+        } catch (SQLException | ClassNotFoundException ignored){
 
         }
         finally {
@@ -57,19 +57,19 @@ public class DatabaseEngine extends AbstractVerticle {
 
                 PreparedStatement preparedStatement = con.prepareStatement("insert into Discovery (port,name,password,community,version,ip,metricType) values (?,?,?,?,?,?,?)");
 
-                preparedStatement.setInt(1, jsonObject.getInteger("port"));
+                preparedStatement.setInt(1, jsonObject.getInteger(Constants.PORT));
 
-                preparedStatement.setString(2, jsonObject.getString("name"));
+                preparedStatement.setString(2, jsonObject.getString(Constants.NAME));
 
-                preparedStatement.setString(3, jsonObject.getString("password"));
+                preparedStatement.setString(3, jsonObject.getString(Constants.PASSWORD));
 
-                preparedStatement.setString(4, jsonObject.getString("community"));
+                preparedStatement.setString(4, jsonObject.getString(Constants.COMMUNITY));
 
-                preparedStatement.setString(5, jsonObject.getString("version"));
+                preparedStatement.setString(5, jsonObject.getString(Constants.VERSION));
 
-                preparedStatement.setString(6, jsonObject.getString("ip"));
+                preparedStatement.setString(6, jsonObject.getString(Constants.IP_ADDRESS));
 
-                preparedStatement.setString(7, jsonObject.getString("metricType"));
+                preparedStatement.setString(7, jsonObject.getString(Constants.METRIC_TYPE));
 
                 preparedStatement.executeUpdate();
 
@@ -109,7 +109,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
         if (!tables.next()) {
 
-            stmt.executeUpdate("create table Discovery (port int,ip varchar(255),name varchar(255),password varchar(255),community varchar(255),version varchar(255),metricType varchar(255))");
+            stmt.executeUpdate("create table Discovery (port int, ip varchar(255),name varchar(255),password varchar(255),community varchar(255),version varchar(255),metricType varchar(255))");
 
         }
 
@@ -149,7 +149,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
                     preparedStatement.setInt(3, time);
 
-                    int aa = preparedStatement.executeUpdate();
+                    preparedStatement.executeUpdate();
 
                 }
 
