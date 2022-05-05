@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -19,7 +20,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
     static final Logger LOG = LoggerFactory.getLogger(DatabaseEngine.class.getName());
 
-    boolean checkIp(JsonObject jsonObject) throws SQLException, ClassNotFoundException {
+    boolean checkIp(JsonObject entries) throws SQLException, ClassNotFoundException {
 
         Connection connection = null;
 
@@ -31,7 +32,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/NMS", "root", "password");
 
-            String query = "select * from Discovery where ip='" + jsonObject.getString(Constants.IP_ADDRESS) + "'";
+            String query = "select * from Discovery where ip='" + entries.getString(Constants.IP_ADDRESS) + "'";
 
             ResultSet resultSet = connection.createStatement().executeQuery(query);
 
@@ -39,7 +40,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
         } catch (SQLException | ClassNotFoundException e){
 
-            LOG.debug("Error : {} " + e.getMessage());
+            LOG.debug("Error : {}" , e.getMessage());
 
         }
         finally {
@@ -141,13 +142,13 @@ public class DatabaseEngine extends AbstractVerticle {
 
             if (!resultSet.next()) {
 
-                int a = stmt.executeUpdate("create table Metric (metricType varchar(255),counter varchar(255),time int)");
+                stmt.executeUpdate("create table Metric (metricType varchar(255),counter varchar(255),time int)");
 
-                HashMap<String, Integer> deviceAndPort = new HashMap<>();
+               ArrayList<String> deviceAndPort = new ArrayList<>();
 
-                deviceAndPort.put("linux", 22);
+                deviceAndPort.add("linux");
 
-                deviceAndPort.put("windows", 5985);
+                deviceAndPort.add("windows");
 
                 HashMap<String, Integer> counterTime = new HashMap<>();
 
@@ -161,7 +162,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
                 counterTime.put("SystemInfo", 200000);
 
-                for (String key : deviceAndPort.keySet()) {
+                for (String key : deviceAndPort) {
 
                     PreparedStatement preparedStatement = con.prepareStatement("insert into Metric (metricType,counter,time) values (?,?,?)");
 
@@ -200,6 +201,7 @@ public class DatabaseEngine extends AbstractVerticle {
                 preparedStatement.executeUpdate();
 
             }
+
         }catch (SQLException | ClassNotFoundException e){
 
             LOG.debug("Error : {} " + e.getMessage());
