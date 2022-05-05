@@ -1,6 +1,8 @@
 package com.mindarray;
 
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +13,8 @@ import java.util.Map;
 
 public class Utils {
 
+    static final Logger LOG = LoggerFactory.getLogger(Utils.class.getName());
+
     public static JsonObject validation(JsonObject jsonObject){
 
         JsonObject result = new JsonObject();
@@ -18,48 +22,71 @@ public class Utils {
         ArrayList<String> listOfErrors = new ArrayList<>();
 
         if(!jsonObject.containsKey(Constants.METRIC_TYPE)){
+
             listOfErrors.add("metricType field is not available");
+
         }
+
         if(jsonObject.containsKey(Constants.METRIC_TYPE)){
 
-            if(jsonObject.getString(Constants.METRIC_TYPE).equalsIgnoreCase("linux") || jsonObject.getString(Constants.METRIC_TYPE).equalsIgnoreCase("windows"))
-            {
-                if(!jsonObject.containsKey(Constants.NAME))
-                {
+            if(jsonObject.getString(Constants.METRIC_TYPE).equalsIgnoreCase("linux") || jsonObject.getString(Constants.METRIC_TYPE).equalsIgnoreCase("windows")) {
+
+                if(!jsonObject.containsKey(Constants.NAME)) {
+
                     listOfErrors.add("name is not available");
+
                 }
+
                 if(!jsonObject.containsKey(Constants.PASSWORD)){
+
                     listOfErrors.add("password is not available");
+
                 }
             }
+
             else if(jsonObject.getString(Constants.METRIC_TYPE).equalsIgnoreCase("networking") ){
 
-                if(!jsonObject.containsKey(Constants.COMMUNITY))
-                {
+                if(!jsonObject.containsKey(Constants.COMMUNITY)) {
+
                     listOfErrors.add("community is not available");
+
                 }
+
                 if(!jsonObject.containsKey(Constants.VERSION)){
+
                     listOfErrors.add("version is not available");
+
                 }
+
             }
 
         }
 
         if(!jsonObject.containsKey(Constants.IP_ADDRESS)){
+
             listOfErrors.add("ip is not available");
+
         }
 
         if(!jsonObject.containsKey(Constants.PORT)){
+
             listOfErrors.add("port is not available");
+
         }
 
 
         if(listOfErrors.isEmpty()) {
+
             result.put("status", "success");
+
         }else {
+
             result.put("status", "fail");
+
             result.put("error", listOfErrors);
+
         }
+
         return result;
 
     }
@@ -92,7 +119,8 @@ public class Utils {
 
         } catch (IOException e) {
 
-            error.put("error",e.getMessage());
+            LOG.debug("Error : {} ", e.getMessage());
+
         }
 
         assert process != null;
@@ -165,7 +193,7 @@ public class Utils {
 
         } catch (IOException | InterruptedException e) {
 
-            e.printStackTrace();
+            LOG.debug("Error : {} " + e.getMessage());
 
         }
 

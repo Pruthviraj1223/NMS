@@ -1,49 +1,64 @@
 package com.mindarray;
 
 import io.vertx.core.AbstractVerticle;
+
 import io.vertx.core.Promise;
-import io.vertx.core.json.Json;
+
 import io.vertx.core.json.JsonObject;
 
+import org.slf4j.Logger;
+
+import org.slf4j.LoggerFactory;
+
 import java.sql.*;
+
 import java.util.HashMap;
-import java.util.Iterator;
+
 
 public class DatabaseEngine extends AbstractVerticle {
 
+    static final Logger LOG = LoggerFactory.getLogger(DatabaseEngine.class.getName());
+
     boolean checkIp(JsonObject jsonObject) throws SQLException, ClassNotFoundException {
 
-        Connection con = null;
+        Connection connection = null;
 
-        boolean ans = false;
+        boolean isAvailable = false;
 
         try {
+
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/NMS", "root", "password");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/NMS", "root", "password");
 
             String query = "select * from Discovery where ip='" + jsonObject.getString(Constants.IP_ADDRESS) + "'";
 
-            ResultSet resultSet = con.createStatement().executeQuery(query);
+            ResultSet resultSet = connection.createStatement().executeQuery(query);
 
-            ans = resultSet.next();
+            isAvailable = resultSet.next();
 
-        } catch (SQLException | ClassNotFoundException ignored){
+        } catch (SQLException | ClassNotFoundException e){
+
+            LOG.debug("Error : {} " + e.getMessage());
 
         }
         finally {
-            if(con!=null){
-                con.close();
+
+            if(connection!=null){
+
+                connection.close();
+
             }
+
         }
 
-        return ans;
+        return isAvailable;
 
     }
 
      JsonObject insert(JsonObject jsonObject) throws SQLException, ClassNotFoundException {
 
-        Connection con = null;
+        Connection connection = null;
 
         JsonObject result = new JsonObject();
 
@@ -53,9 +68,9 @@ public class DatabaseEngine extends AbstractVerticle {
 
                 Class.forName("com.mysql.cj.jdbc.Driver");
 
-                con = DriverManager.getConnection("jdbc:mysql://localhost:3306/NMS", "root", "password");
+                connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/NMS", "root", "password");
 
-                PreparedStatement preparedStatement = con.prepareStatement("insert into Discovery (port,name,password,community,version,ip,metricType) values (?,?,?,?,?,?,?)");
+                PreparedStatement preparedStatement = connection.prepareStatement("insert into Discovery (port,name,password,community,version,ip,metricType) values (?,?,?,?,?,?,?)");
 
                 preparedStatement.setInt(1, jsonObject.getInteger(Constants.PORT));
 
@@ -80,113 +95,127 @@ public class DatabaseEngine extends AbstractVerticle {
                 result.put("Insertion","Already exist");
 
             }
+
         }catch (SQLException | ClassNotFoundException e){
-                result.put("error",e.getMessage());
+
+                LOG.debug("Error : {} "+ e.getMessage());
+
         }
 
         finally {
-            if(con!=null){
-                con.close();
+
+            if(connection!=null){
+
+                connection.close();
+
             }
+
         }
+
         return result;
+
      }
 
 
-    void createTable() throws ClassNotFoundException, SQLException {
+    void createTable() {
 
-        Class.forName("com.mysql.cj.jdbc.Driver");
+        try {
 
-        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/NMS", "root", "password");
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
-        Statement stmt = con.createStatement();
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/NMS", "root", "password");
 
-        DatabaseMetaData dbm = con.getMetaData();
+            Statement stmt = con.createStatement();
 
-        ResultSet tables = dbm.getTables(null, null, "Discovery", null);
+            DatabaseMetaData dbm = con.getMetaData();
 
-        ResultSet resultSet = dbm.getTables(null, null, "Metric", null);
+            ResultSet tables = dbm.getTables(null, null, "Discovery", null);
 
-        if (!tables.next()) {
+            ResultSet resultSet = dbm.getTables(null, null, "Metric", null);
 
-            stmt.executeUpdate("create table Discovery (port int, ip varchar(255),name varchar(255),password varchar(255),community varchar(255),version varchar(255),metricType varchar(255))");
+            if (!tables.next()) {
 
-        }
-
-        if (!resultSet.next()) {
-
-            int a = stmt.executeUpdate("create table Metric (metricType varchar(255),counter varchar(255),time int)");
-
-            HashMap<String, Integer> deviceAndPort = new HashMap<>();
-
-            deviceAndPort.put("linux", 22);
-
-            deviceAndPort.put("windows", 5985);
-
-            HashMap<String, Integer> counterTime = new HashMap<>();
-
-            counterTime.put("CPU", 60000);
-
-            counterTime.put("Disk", 120000);
-
-            counterTime.put("Process", 40000);
-
-            counterTime.put("Memory", 50000);
-
-            counterTime.put("SystemInfo", 200000);
-
-            for (String key : deviceAndPort.keySet()) {
-
-                PreparedStatement preparedStatement = con.prepareStatement("insert into Metric (metricType,counter,time) values (?,?,?)");
-
-                for (String counter : counterTime.keySet()) {
-
-                    int time = counterTime.get(counter);
-
-                    preparedStatement.setString(1, key);
-
-                    preparedStatement.setString(2, counter);
-
-                    preparedStatement.setInt(3, time);
-
-                    preparedStatement.executeUpdate();
-
-                }
+                stmt.executeUpdate("create table Discovery (port int, ip varchar(255),name varchar(255),password varchar(255),community varchar(255),version varchar(255),metricType varchar(255))");
 
             }
 
-            PreparedStatement preparedStatement = con.prepareStatement("insert into Metric (metricType,counter,time) values (?,?,?)");
+            if (!resultSet.next()) {
 
-            preparedStatement.setString(1,"networking");
+                int a = stmt.executeUpdate("create table Metric (metricType varchar(255),counter varchar(255),time int)");
 
-            preparedStatement.setString(2,"systemInfo");
+                HashMap<String, Integer> deviceAndPort = new HashMap<>();
 
-            preparedStatement.setInt(3,100000);
+                deviceAndPort.put("linux", 22);
 
-            preparedStatement.executeUpdate();
+                deviceAndPort.put("windows", 5985);
 
-            preparedStatement.setString(1,"networking");
+                HashMap<String, Integer> counterTime = new HashMap<>();
 
-            preparedStatement.setString(2,"Interface");
+                counterTime.put("CPU", 60000);
 
-            preparedStatement.setInt(3,20000);
+                counterTime.put("Disk", 120000);
 
-            preparedStatement.executeUpdate();
+                counterTime.put("Process", 40000);
 
+                counterTime.put("Memory", 50000);
+
+                counterTime.put("SystemInfo", 200000);
+
+                for (String key : deviceAndPort.keySet()) {
+
+                    PreparedStatement preparedStatement = con.prepareStatement("insert into Metric (metricType,counter,time) values (?,?,?)");
+
+                    for (String counter : counterTime.keySet()) {
+
+                        int time = counterTime.get(counter);
+
+                        preparedStatement.setString(1, key);
+
+                        preparedStatement.setString(2, counter);
+
+                        preparedStatement.setInt(3, time);
+
+                        preparedStatement.executeUpdate();
+
+                    }
+
+                }
+
+                PreparedStatement preparedStatement = con.prepareStatement("insert into Metric (metricType,counter,time) values (?,?,?)");
+
+                preparedStatement.setString(1, "networking");
+
+                preparedStatement.setString(2, "systemInfo");
+
+                preparedStatement.setInt(3, 100000);
+
+                preparedStatement.executeUpdate();
+
+                preparedStatement.setString(1, "networking");
+
+                preparedStatement.setString(2, "Interface");
+
+                preparedStatement.setInt(3, 20000);
+
+                preparedStatement.executeUpdate();
+
+            }
+        }catch (SQLException | ClassNotFoundException e){
+
+            LOG.debug("Error : {} " + e.getMessage());
 
         }
     }
 
 
     @Override
-    public void start(Promise<Void> startPromise) throws Exception {
+    public void start(Promise<Void> startPromise)  {
 
         createTable();
 
         vertx.eventBus().consumer(Constants.DATABASE_CHECKIP,reply->{
 
             JsonObject userData = (JsonObject) reply.body();
-
 
                 vertx.executeBlocking(handler -> {
 
@@ -195,10 +224,13 @@ public class DatabaseEngine extends AbstractVerticle {
                     boolean ans = false;
 
                     try {
+
                         ans = checkIp(userData);
 
                     } catch (SQLException | ClassNotFoundException e) {
-                        check.put("error",e.getMessage());
+
+                        LOG.debug("Error : {} ", e.getMessage());
+
                     }
 
                     if (ans) {
@@ -236,15 +268,16 @@ public class DatabaseEngine extends AbstractVerticle {
 
                 } catch (SQLException | ClassNotFoundException e) {
 
-                    throw new RuntimeException(e);
+                    LOG.debug("Error : {}" + e.getMessage());
 
                 }
 
             });
 
-
         });
 
         startPromise.complete();
+
     }
+
 }

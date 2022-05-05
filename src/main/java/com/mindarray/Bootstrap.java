@@ -10,9 +10,9 @@ public class Bootstrap {
 
     public static final Vertx vertx = Vertx.vertx();
 
-    public static void main(String[] args) {
+    static final Logger LOG = LoggerFactory.getLogger(Bootstrap.class.getName());
 
-        final Logger LOG = LoggerFactory.getLogger(Bootstrap.class.getName());
+    public static void main(String[] args) {
 
         start(ApiServer.class.getName())
 
