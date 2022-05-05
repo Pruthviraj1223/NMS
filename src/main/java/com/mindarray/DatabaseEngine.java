@@ -56,7 +56,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
     }
 
-     JsonObject insert(JsonObject jsonObject) throws SQLException, ClassNotFoundException {
+     JsonObject insert(JsonObject userData) throws SQLException, ClassNotFoundException {
 
         Connection connection = null;
 
@@ -64,7 +64,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
         try {
 
-            if (!checkIp(jsonObject)) {
+            if (!checkIp(userData)) {
 
                 Class.forName("com.mysql.cj.jdbc.Driver");
 
@@ -72,19 +72,19 @@ public class DatabaseEngine extends AbstractVerticle {
 
                 PreparedStatement preparedStatement = connection.prepareStatement("insert into Discovery (port,name,password,community,version,ip,metricType) values (?,?,?,?,?,?,?)");
 
-                preparedStatement.setInt(1, jsonObject.getInteger(Constants.PORT));
+                preparedStatement.setInt(1, userData.getInteger(Constants.PORT));
 
-                preparedStatement.setString(2, jsonObject.getString(Constants.NAME));
+                preparedStatement.setString(2, userData.getString(Constants.NAME));
 
-                preparedStatement.setString(3, jsonObject.getString(Constants.PASSWORD));
+                preparedStatement.setString(3, userData.getString(Constants.PASSWORD));
 
-                preparedStatement.setString(4, jsonObject.getString(Constants.COMMUNITY));
+                preparedStatement.setString(4, userData.getString(Constants.COMMUNITY));
 
-                preparedStatement.setString(5, jsonObject.getString(Constants.VERSION));
+                preparedStatement.setString(5, userData.getString(Constants.VERSION));
 
-                preparedStatement.setString(6, jsonObject.getString(Constants.IP_ADDRESS));
+                preparedStatement.setString(6, userData.getString(Constants.IP_ADDRESS));
 
-                preparedStatement.setString(7, jsonObject.getString(Constants.METRIC_TYPE));
+                preparedStatement.setString(7, userData.getString(Constants.METRIC_TYPE));
 
                 preparedStatement.executeUpdate();
 
@@ -231,6 +231,8 @@ public class DatabaseEngine extends AbstractVerticle {
 
                         LOG.debug("Error : {} ", e.getMessage());
 
+                        reply.fail(-1,e.getMessage());
+
                     }
 
                     if (ans) {
@@ -254,7 +256,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
         vertx.eventBus().consumer(Constants.DATABASE_INSERT,handler->{
 
-            JsonObject jsonObject = new JsonObject(handler.body().toString());
+            JsonObject userData = new JsonObject(handler.body().toString());
 
             vertx.executeBlocking(req->{
 
@@ -262,13 +264,16 @@ public class DatabaseEngine extends AbstractVerticle {
 
                 try {
 
-                    result = insert(jsonObject);
+                    result = insert(userData);
 
                     handler.reply(result);
 
                 } catch (SQLException | ClassNotFoundException e) {
 
                     LOG.debug("Error : {}" + e.getMessage());
+
+                    handler.fail(-1,e.getMessage());
+
 
                 }
 

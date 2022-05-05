@@ -74,10 +74,17 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                                     vertx.eventBus().request(Constants.DATABASE_INSERT, user, data -> {
 
-                                        JsonObject outcome = (JsonObject) data.result().body();
+                                        if(data.succeeded()){
 
-                                        handler.reply(outcome);
+                                            JsonObject outcome = (JsonObject) data.result().body();
 
+                                            handler.reply(outcome);
+
+                                        }else{
+
+                                            handler.reply(data.cause().toString());
+
+                                        }
 
                                     });
 

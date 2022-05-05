@@ -54,9 +54,12 @@ public class ApiServer extends AbstractVerticle {
 
             }catch (Exception e){
 
-                handler.response().end(new JsonObject().put("status","Invalid Format").encodePrettily());
+                handler.response().setStatusCode(200)
+
+                        .end(new JsonObject().put("status","Invalid Format").encodePrettily());
 
             }
+
         });
 
         httpServer.requestHandler(router).listen(8080).onComplete(handler->{
