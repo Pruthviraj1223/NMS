@@ -24,6 +24,8 @@ public class Constants {
 
     public static final String VERSION = "version";
 
+    public static final String CONTENT_TYPE = "application/json";
+
 
 
 }

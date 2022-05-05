@@ -1,13 +1,21 @@
 package com.mindarray;
 
 import io.vertx.core.AbstractVerticle;
+
 import io.vertx.core.Promise;
+
 import io.vertx.core.http.HttpServer;
+
 import io.vertx.core.json.JsonObject;
+
 import io.vertx.ext.web.Router;
+
 import io.vertx.ext.web.handler.BodyHandler;
+
 import org.slf4j.Logger;
+
 import org.slf4j.LoggerFactory;
+
 
 public class ApiServer extends AbstractVerticle {
 
@@ -32,7 +40,8 @@ public class ApiServer extends AbstractVerticle {
 
                     if (response.succeeded()) {
 
-                        handler.response().setStatusCode(200).putHeader("content-type", "application/json")
+                        handler.response().setStatusCode(200).putHeader("content-type", Constants.CONTENT_TYPE)
+
                                 .end(response.result().body().toString());
 
                     } else {
