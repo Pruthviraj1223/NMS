@@ -22,62 +22,114 @@ public class Utils {
 
     static final Logger LOG = LoggerFactory.getLogger(Utils.class.getName());
 
-    public static JsonObject validation(JsonObject entries){
+    public static JsonObject validation(JsonObject userData){
 
         JsonObject result = new JsonObject();
 
         ArrayList<String> listOfErrors = new ArrayList<>();
 
-        if(!entries.containsKey(Constants.METRIC_TYPE)){
 
-            listOfErrors.add("metricType field is not available");
+        if(userData.containsKey(Constants.METRIC_TYPE)){
 
-        }
+            if(userData.getString(Constants.METRIC_TYPE).isEmpty()){
 
-        if(entries.containsKey(Constants.METRIC_TYPE)){
+                listOfErrors.add("metric type is empty");
 
-            if(entries.getString(Constants.METRIC_TYPE).equalsIgnoreCase("linux") || entries.getString(Constants.METRIC_TYPE).equalsIgnoreCase("windows")) {
+            }
+            else{
 
-                if(!entries.containsKey(Constants.NAME)) {
+                if(userData.getString(Constants.METRIC_TYPE).equalsIgnoreCase("linux") || userData.getString(Constants.METRIC_TYPE).equalsIgnoreCase("windows")) {
 
-                    listOfErrors.add("name is not available");
+                    if(!userData.containsKey(Constants.NAME)) {
 
+                        listOfErrors.add("name is not available");
+
+                    }else{
+
+                        if(userData.getString(Constants.NAME).isBlank()){
+
+                            listOfErrors.add("name is empty");
+
+                        }
+
+                    }
+
+                    if(!userData.containsKey(Constants.PASSWORD)){
+
+                        listOfErrors.add("password is not available");
+
+                    }else{
+
+                        if(userData.getString(Constants.PASSWORD).isBlank()){
+
+                            listOfErrors.add("password is empty");
+
+                        }
+
+                    }
                 }
 
-                if(!entries.containsKey(Constants.PASSWORD)){
+                else if(userData.getString(Constants.METRIC_TYPE).equalsIgnoreCase("networking") ){
 
-                    listOfErrors.add("password is not available");
+                    if(!userData.containsKey(Constants.COMMUNITY)) {
+
+                        listOfErrors.add("community is not available");
+
+                    }else{
+
+                        if(userData.getString(Constants.COMMUNITY).isBlank()){
+
+                            listOfErrors.add("community is empty");
+
+                        }
+
+                    }
+
+                    if(!userData.containsKey(Constants.VERSION)){
+
+                        listOfErrors.add("version is not available");
+
+                    }else{
+
+                        if(userData.getString(Constants.VERSION).isBlank()){
+
+                            listOfErrors.add("version is empty");
+
+                        }
+
+                    }
 
                 }
             }
 
-            else if(entries.getString(Constants.METRIC_TYPE).equalsIgnoreCase("networking") ){
-
-                if(!entries.containsKey(Constants.COMMUNITY)) {
-
-                    listOfErrors.add("community is not available");
-
-                }
-
-                if(!entries.containsKey(Constants.VERSION)){
-
-                    listOfErrors.add("version is not available");
-
-                }
-
-            }
-
         }
 
-        if(!entries.containsKey(Constants.IP_ADDRESS)){
+        if(!userData.containsKey(Constants.IP_ADDRESS)){
 
             listOfErrors.add("ip is not available");
 
         }
+        else{
 
-        if(!entries.containsKey(Constants.PORT)){
+            if(userData.getString(Constants.IP_ADDRESS).isEmpty()){
+
+                listOfErrors.add("ip is empty");
+
+            }
+
+        }
+
+        if(!userData.containsKey(Constants.PORT)){
 
             listOfErrors.add("port is not available");
+
+        }else{
+
+            if(userData.getString(Constants.PORT).isEmpty()){
+
+                listOfErrors.add("port is empty");
+
+            }
 
         }
 
@@ -160,15 +212,15 @@ public class Utils {
 
     }
 
-    public static JsonObject plugin(JsonObject user) throws IOException {
+    public static JsonObject plugin(JsonObject userData) throws IOException {
 
         JsonObject result = new JsonObject();
 
-        user.put("category","discovery");
+        userData.put("category","discovery");
 
-        String encodedString = Base64.getEncoder().encodeToString(user.toString().getBytes());
+        String encodedString = Base64.getEncoder().encodeToString(userData.toString().getBytes());
 
-        user.remove("category");
+        userData.remove("category");
 
         ProcessBuilder processBuilder = new ProcessBuilder().command("/home/pruthviraj/NMS/plugin.exe",encodedString);
 
@@ -195,7 +247,7 @@ public class Utils {
 
         } catch (Exception exception) {
 
-            LOG.debug("Error : {} " + exception.getMessage());
+            LOG.debug("Error : {} " , exception.getMessage());
 
         }
 

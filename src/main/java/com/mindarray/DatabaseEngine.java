@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 
 import java.util.ArrayList;
+
 import java.util.HashMap;
 
 
@@ -20,7 +21,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
     static final Logger LOG = LoggerFactory.getLogger(DatabaseEngine.class.getName());
 
-    boolean checkIp(JsonObject entries) throws SQLException, ClassNotFoundException {
+    boolean checkIp(JsonObject entries) throws SQLException {
 
         Connection connection = null;
 
@@ -57,7 +58,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
     }
 
-     JsonObject insert(JsonObject userData) throws SQLException, ClassNotFoundException {
+     JsonObject insert(JsonObject userData) throws SQLException {
 
         Connection connection = null;
 
@@ -99,7 +100,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
         }catch (Exception exception){
 
-                LOG.debug("Error : {} "+ exception.getMessage());
+                LOG.debug("Error : {} ", exception.getMessage());
 
         }
 
@@ -204,7 +205,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
         }catch (Exception exception){
 
-            LOG.debug("Error : {} " + exception.getMessage());
+            LOG.debug("Error : {} " , exception.getMessage());
 
         }
     }

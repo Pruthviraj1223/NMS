@@ -92,6 +92,8 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                                         }else{
 
+                                            System.out.println("data insertion failed");
+
                                             handler.reply(data.cause().toString());
 
                                         }
