@@ -89,12 +89,10 @@ public class DiscoveryEngine extends AbstractVerticle {
                                             }
 
 
-
                                         }else{
 
-                                            System.out.println("data insertion failed");
 
-                                            handler.reply(data.cause().toString());
+                                            handler.reply(data.cause());
 
                                         }
 
@@ -102,7 +100,9 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                                 }else{
 
-                                    handler.reply(resHandler.cause().toString());
+                                    System.out.println("data insertion failed");
+
+                                    handler.reply(resHandler.cause());
 
                                 }
 
@@ -116,7 +116,7 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                     }else{
 
-                        handler.reply(response.cause().toString());
+                        handler.reply(response.cause());
 
                     }
 

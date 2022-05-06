@@ -271,6 +271,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
                     handler.reply(result);
 
+
                 } catch (Exception exception) {
 
                     LOG.debug("Error : {}" + exception.getMessage());
