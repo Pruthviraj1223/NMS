@@ -41,7 +41,7 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                                     JsonObject ping = Utils.ping(userData);
 
-                                    if(ping.getString(Constants.PING).equalsIgnoreCase(Constants.SUCCESS)){
+                                    if(ping.getString(Constants.STATUS).equalsIgnoreCase(Constants.SUCCESS)){
 
                                         JsonObject resultData = Utils.plugin(userData);
 
@@ -85,14 +85,13 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                                             }else{
 
-                                                handler.reply(new JsonObject().put(Constants.STATUS,"null response"));
+                                                handler.reply(new JsonObject().put(Constants.STATUS,"Null response"));
 
                                             }
 
-
                                         }else{
 
-
+                                            System.out.println("ping fail");
                                             handler.reply(data.cause());
 
                                         }

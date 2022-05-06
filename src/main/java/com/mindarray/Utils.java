@@ -30,9 +30,6 @@ public class Utils {
         ArrayList<String> listOfErrors = new ArrayList<>();
 
 
-
-
-
         if(userData.containsKey(Constants.METRIC_TYPE)){
 
             if(userData.getString(Constants.METRIC_TYPE).isEmpty()){
@@ -109,6 +106,9 @@ public class Utils {
 
                             listOfErrors.add("version is empty");
 
+                        }else if(!(userData.getString(Constants.VERSION).equalsIgnoreCase(Constants.VERSION1) || userData.getString(Constants.VERSION).equalsIgnoreCase(Constants.VERSION2))){
+
+                            listOfErrors.add("version is not valid");
                         }
 
                     }
@@ -217,11 +217,11 @@ public class Utils {
 
             if(answer){
 
-                error.put(Constants.PING,Constants.SUCCESS);
+                error.put(Constants.STATUS,Constants.SUCCESS);
 
             }else{
 
-                error.put(Constants.PING,Constants.FAIL);
+                error.put(Constants.STATUS,Constants.PING_FAIL);
 
             }
 
