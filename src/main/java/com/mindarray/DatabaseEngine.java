@@ -240,13 +240,13 @@ public class DatabaseEngine extends AbstractVerticle {
 
                     if (ans) {
 
-                        check.put("status", "Already discovered");
+                        check.put(Constants.STATUS, "Already discovered");
 
                         reply.reply(check);
 
                     } else {
 
-                        check.put("status", "Not discovered");
+                        check.put(Constants.STATUS, "Not discovered");
 
                         reply.reply(check);
 

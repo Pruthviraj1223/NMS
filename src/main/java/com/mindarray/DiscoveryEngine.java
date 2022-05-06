@@ -25,7 +25,8 @@ public class DiscoveryEngine extends AbstractVerticle {
 
             JsonObject result = Utils.validation(userData);
 
-            if(!result.containsKey("error")){
+
+            if(!result.containsKey(Constants.ERROR)){
 
                 vertx.eventBus().request(Constants.DATABASE_CHECKIP,userData,response->{
 
@@ -33,18 +34,18 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                         JsonObject check = (JsonObject) response.result().body();
 
-                        if(check.getString("status").equalsIgnoreCase("Not discovered")){
+                        if(check.getString(Constants.STATUS).equalsIgnoreCase("Not discovered")){
 
                             vertx.<JsonObject>executeBlocking(request -> {
                                 try {
 
                                     JsonObject ping = Utils.ping(userData);
 
-                                    if(ping.getString("ping").equalsIgnoreCase("success")){
+                                    if(ping.getString(Constants.PING).equalsIgnoreCase(Constants.SUCCESS)){
 
                                         JsonObject resultData = Utils.plugin(userData);
 
-                                        if(resultData.getString("status").equalsIgnoreCase("success")){
+                                        if(resultData.getString(Constants.STATUS).equalsIgnoreCase(Constants.SUCCESS)){
 
                                             request.complete(userData);
 
@@ -84,7 +85,7 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                                             }else{
 
-                                                handler.reply(new JsonObject().put("status","null response"));
+                                                handler.reply(new JsonObject().put(Constants.STATUS,"null response"));
 
                                             }
 
@@ -99,8 +100,6 @@ public class DiscoveryEngine extends AbstractVerticle {
                                     });
 
                                 }else{
-
-                                    System.out.println("data insertion failed");
 
                                     handler.reply(resHandler.cause());
 

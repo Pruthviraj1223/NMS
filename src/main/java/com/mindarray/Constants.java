@@ -1,5 +1,7 @@
 package com.mindarray;
 
+import com.mysql.cj.xdevapi.PreparableStatement;
+
 public class Constants {
 
     public static final String DISCOVERY = "/discovery";
@@ -25,6 +27,16 @@ public class Constants {
     public static final String VERSION = "version";
 
     public static final String CONTENT_TYPE = "application/json";
+
+    public static final String STATUS = "status";
+
+    public static final String ERROR = "error";
+
+    public static final String PING = "ping";
+
+    public static final String SUCCESS = "success";
+
+    public static final String FAIL = "fail";
 
 
 

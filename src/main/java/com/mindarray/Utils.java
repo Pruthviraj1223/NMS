@@ -22,11 +22,15 @@ public class Utils {
 
     static final Logger LOG = LoggerFactory.getLogger(Utils.class.getName());
 
+
     public static JsonObject validation(JsonObject userData){
 
         JsonObject result = new JsonObject();
 
         ArrayList<String> listOfErrors = new ArrayList<>();
+
+
+
 
 
         if(userData.containsKey(Constants.METRIC_TYPE)){
@@ -38,6 +42,8 @@ public class Utils {
             }
             else{
 
+                userData.put(Constants.METRIC_TYPE,userData.getString(Constants.METRIC_TYPE).trim());
+
                 if(userData.getString(Constants.METRIC_TYPE).equalsIgnoreCase("linux") || userData.getString(Constants.METRIC_TYPE).equalsIgnoreCase("windows")) {
 
                     if(!userData.containsKey(Constants.NAME)) {
@@ -46,7 +52,9 @@ public class Utils {
 
                     }else{
 
-                        if(userData.getString(Constants.NAME).isBlank()){
+                        userData.put(Constants.NAME,userData.getString(Constants.NAME).trim());
+
+                        if(userData.getString(Constants.NAME).isEmpty()){
 
                             listOfErrors.add("name is empty");
 
@@ -60,7 +68,9 @@ public class Utils {
 
                     }else{
 
-                        if(userData.getString(Constants.PASSWORD).isBlank()){
+                        userData.put(Constants.PASSWORD,userData.getString(Constants.PASSWORD).trim());
+
+                        if(userData.getString(Constants.PASSWORD).isEmpty()){
 
                             listOfErrors.add("password is empty");
 
@@ -77,7 +87,9 @@ public class Utils {
 
                     }else{
 
-                        if(userData.getString(Constants.COMMUNITY).isBlank()){
+                        userData.put(Constants.COMMUNITY,userData.getString(Constants.COMMUNITY).trim());
+
+                        if(userData.getString(Constants.COMMUNITY).isEmpty()){
 
                             listOfErrors.add("community is empty");
 
@@ -91,7 +103,9 @@ public class Utils {
 
                     }else{
 
-                        if(userData.getString(Constants.VERSION).isBlank()){
+                        userData.put(Constants.VERSION,userData.getString(Constants.VERSION).trim());
+
+                        if(userData.getString(Constants.VERSION).isEmpty()){
 
                             listOfErrors.add("version is empty");
 
@@ -110,6 +124,8 @@ public class Utils {
 
         }
         else{
+
+            userData.put(Constants.IP_ADDRESS,userData.getString(Constants.IP_ADDRESS).trim());
 
             if(userData.getString(Constants.IP_ADDRESS).isEmpty()){
 
@@ -136,13 +152,13 @@ public class Utils {
 
         if(listOfErrors.isEmpty()) {
 
-            result.put("status", "success");
+            result.put(Constants.STATUS, Constants.SUCCESS);
 
         }else {
 
-            result.put("status", "fail");
+            result.put(Constants.STATUS, Constants.FAIL);
 
-            result.put("error", listOfErrors);
+            result.put(Constants.ERROR, listOfErrors);
 
         }
 
@@ -191,24 +207,32 @@ public class Utils {
 
         output = bufferedReader.readLine();
 
-        assert output != null;
-        String []packetData = output.split(":")[1].split("=")[1].split(",")[0].split("/");
+        if(output!=null){
 
-        String packetLoss = packetData[2].substring(0,packetData[2].length()-1);
+            String []packetData = output.split(":")[1].split("=")[1].split(",")[0].split("/");
 
-        boolean answer =  packetLoss.equalsIgnoreCase("0");
+            String packetLoss = packetData[2].substring(0,packetData[2].length()-1);
 
-        if(answer){
+            boolean answer =  packetLoss.equalsIgnoreCase("0");
 
-            error.put("ping","success");
+            if(answer){
+
+                error.put(Constants.PING,Constants.SUCCESS);
+
+            }else{
+
+                error.put(Constants.PING,Constants.FAIL);
+
+            }
 
         }else{
 
-            error.put("ping","fail");
+            error.put(Constants.PING,Constants.FAIL);
+
 
         }
-
         return error;
+
 
     }
 
@@ -270,18 +294,18 @@ public class Utils {
 
             if(output.equalsIgnoreCase("success")){
 
-                result.put("status","success");
+                result.put(Constants.STATUS,Constants.SUCCESS);
 
             }else{
 
-                result.put("status","fail");
+                result.put(Constants.STATUS,Constants.FAIL);
 
-                result.put("error",output);
+                result.put(Constants.STATUS,output);
             }
 
         }else{
 
-            result.put("error","Output is null");
+            result.put(Constants.ERROR,"Output is null");
 
         }
         return  result;
