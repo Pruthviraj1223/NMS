@@ -101,7 +101,8 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                                 }else{
 
-                                    handler.reply(resHandler.cause());
+
+                                    handler.reply(resHandler.cause().toString());
 
                                 }
 

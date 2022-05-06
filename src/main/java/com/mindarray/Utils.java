@@ -238,7 +238,7 @@ public class Utils {
 
     public static JsonObject plugin(JsonObject userData) throws IOException {
 
-        JsonObject result = new JsonObject();
+        JsonObject response = null;
 
         userData.put("category","discovery");
 
@@ -268,6 +268,19 @@ public class Utils {
 
             process.waitFor();
 
+            if (output != null) {
+
+                  response = new JsonObject(output);
+                 
+                
+            }else{
+
+                 response = new JsonObject();
+
+                response.put(Constants.ERROR,"Output is null");
+
+            }
+
 
         } catch (Exception exception) {
 
@@ -290,25 +303,8 @@ public class Utils {
 
         }
 
-        if (output != null) {
 
-            if(output.equalsIgnoreCase("success")){
-
-                result.put(Constants.STATUS,Constants.SUCCESS);
-
-            }else{
-
-                result.put(Constants.STATUS,Constants.FAIL);
-
-                result.put(Constants.STATUS,output);
-            }
-
-        }else{
-
-            result.put(Constants.ERROR,"Output is null");
-
-        }
-        return  result;
+        return response;
 
     }
 
