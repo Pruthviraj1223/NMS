@@ -38,9 +38,9 @@ public class DatabaseEngine extends AbstractVerticle {
 
             isAvailable = resultSet.next();
 
-        } catch (SQLException | ClassNotFoundException e){
+        } catch (Exception exception){
 
-            LOG.debug("Error : {}" , e.getMessage());
+            LOG.debug("Error : {}" , exception.getMessage());
 
         }
         finally {
@@ -97,9 +97,9 @@ public class DatabaseEngine extends AbstractVerticle {
 
             }
 
-        }catch (SQLException | ClassNotFoundException e){
+        }catch (Exception exception){
 
-                LOG.debug("Error : {} "+ e.getMessage());
+                LOG.debug("Error : {} "+ exception.getMessage());
 
         }
 
@@ -202,9 +202,9 @@ public class DatabaseEngine extends AbstractVerticle {
 
             }
 
-        }catch (SQLException | ClassNotFoundException e){
+        }catch (Exception exception){
 
-            LOG.debug("Error : {} " + e.getMessage());
+            LOG.debug("Error : {} " + exception.getMessage());
 
         }
     }
@@ -215,7 +215,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
         createTable();
 
-        vertx.eventBus().consumer(Constants.DATABASE_CHECKIP,reply->{
+        vertx.eventBus().consumer(Constants.DATABASE_CHECKIP,reply -> {
 
             JsonObject userData = (JsonObject) reply.body();
 
@@ -229,11 +229,11 @@ public class DatabaseEngine extends AbstractVerticle {
 
                         ans = checkIp(userData);
 
-                    } catch (SQLException | ClassNotFoundException e) {
+                    } catch (Exception exception) {
 
-                        LOG.debug("Error : {} ", e.getMessage());
+                        LOG.debug("Error : {} ", exception.getMessage());
 
-                        reply.fail(-1,e.getMessage());
+                        reply.fail(-1,exception.getMessage());
 
                     }
 
@@ -260,7 +260,7 @@ public class DatabaseEngine extends AbstractVerticle {
 
             JsonObject userData = new JsonObject(handler.body().toString());
 
-            vertx.executeBlocking(req->{
+            vertx.executeBlocking(request -> {
 
                 JsonObject result;
 
@@ -270,12 +270,11 @@ public class DatabaseEngine extends AbstractVerticle {
 
                     handler.reply(result);
 
-                } catch (SQLException | ClassNotFoundException e) {
+                } catch (Exception exception) {
 
-                    LOG.debug("Error : {}" + e.getMessage());
+                    LOG.debug("Error : {}" + exception.getMessage());
 
-                    handler.fail(-1,e.getMessage());
-
+                    handler.fail(-1,exception.getMessage());
 
                 }
 

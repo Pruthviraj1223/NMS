@@ -1,10 +1,15 @@
 package com.mindarray;
 
 import io.vertx.core.Future;
+
 import io.vertx.core.Vertx;
+
 import io.vertx.core.Promise;
+
 import org.slf4j.Logger;
+
 import org.slf4j.LoggerFactory;
+
 
 public class Bootstrap {
 

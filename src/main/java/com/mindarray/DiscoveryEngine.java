@@ -27,15 +27,15 @@ public class DiscoveryEngine extends AbstractVerticle {
 
             if(!result.containsKey("error")){
 
-                vertx.eventBus().request(Constants.DATABASE_CHECKIP,userData,req->{
+                vertx.eventBus().request(Constants.DATABASE_CHECKIP,userData,response->{
 
-                    if(req.succeeded()){
+                    if(response.succeeded()){
 
-                        JsonObject check = (JsonObject) req.result().body();
+                        JsonObject check = (JsonObject) response.result().body();
 
                         if(check.getString("status").equalsIgnoreCase("Not discovered")){
 
-                            vertx.<JsonObject>executeBlocking(res->{
+                            vertx.<JsonObject>executeBlocking(request -> {
                                 try {
 
                                     JsonObject ping = Utils.ping(userData);
@@ -46,22 +46,22 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                                         if(resultData.getString("status").equalsIgnoreCase("success")){
 
-                                            res.complete(userData);
+                                            request.complete(userData);
 
                                         }else{
 
-                                            res.fail(resultData.toString());
+                                            request.fail(resultData.toString());
 
                                         }
 
                                     }else{
 
-                                        res.fail(ping.toString());
+                                        request.fail(ping.toString());
                                     }
 
-                                } catch (IOException e) {
+                                } catch (IOException ioException) {
 
-                                    LOG.debug("Error : {} ", e.getMessage());
+                                    LOG.debug("Error : {} ", ioException.getMessage());
 
                                 }
 
@@ -76,9 +76,19 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                                         if(data.succeeded()){
 
-                                            JsonObject outcome = (JsonObject) data.result().body();
+                                            if(data.result().body()!=null){
 
-                                            handler.reply(outcome);
+                                                JsonObject outcome = (JsonObject) data.result().body();
+
+                                                handler.reply(outcome);
+
+                                            }else{
+
+                                                handler.reply(new JsonObject().put("status","null response"));
+
+                                            }
+
+
 
                                         }else{
 
@@ -104,7 +114,7 @@ public class DiscoveryEngine extends AbstractVerticle {
 
                     }else{
 
-                        handler.reply(req.cause().toString());
+                        handler.reply(response.cause().toString());
 
                     }
 

@@ -46,7 +46,9 @@ public class ApiServer extends AbstractVerticle {
 
                     } else {
 
-                        handler.response().end("Failed");
+                        handler.response().setStatusCode(200).putHeader("content-type", Constants.CONTENT_TYPE)
+
+                                .end(new JsonObject().put("status","failed").encodePrettily());
 
                     }
 

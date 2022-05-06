@@ -140,13 +140,13 @@ public class Utils {
         output = bufferedReader.readLine();
 
         assert output != null;
-        String []arr = output.split(":")[1].split("=")[1].split(",")[0].split("/");
+        String []packetData = output.split(":")[1].split("=")[1].split(",")[0].split("/");
 
-        String loss = arr[2].substring(0,arr[2].length()-1);
+        String packetLoss = packetData[2].substring(0,packetData[2].length()-1);
 
-        boolean ans =  loss.equalsIgnoreCase("0");
+        boolean answer =  packetLoss.equalsIgnoreCase("0");
 
-        if(ans){
+        if(answer){
 
             error.put("ping","success");
 
@@ -166,11 +166,11 @@ public class Utils {
 
         user.put("category","discovery");
 
-        String encoded = Base64.getEncoder().encodeToString(user.toString().getBytes());
+        String encodedString = Base64.getEncoder().encodeToString(user.toString().getBytes());
 
         user.remove("category");
 
-        ProcessBuilder processBuilder = new ProcessBuilder().command("/home/pruthviraj/NMS/plugin.exe",encoded);
+        ProcessBuilder processBuilder = new ProcessBuilder().command("/home/pruthviraj/NMS/plugin.exe",encodedString);
 
         String output = "";
 
@@ -193,9 +193,9 @@ public class Utils {
             process.waitFor();
 
 
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception exception) {
 
-            LOG.debug("Error : {} " + e.getMessage());
+            LOG.debug("Error : {} " + exception.getMessage());
 
         }
 
